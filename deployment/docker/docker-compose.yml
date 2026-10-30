@@ -1,0 +1,50 @@
+services:
+  mcp:
+    build:
+      context: ../..
+      dockerfile: deployment/docker/Dockerfile
+    restart: unless-stopped
+    environment:
+      MCP_ALLOWED_HOSTS: ${MCP_ALLOWED_HOSTS:-localhost,127.0.0.1}
+      MCP_EXPECTED_SPIFFE_ID: ${MCP_EXPECTED_SPIFFE_ID:-spiffe://example.internal/agent/primary}
+      CLIENT_CA_FILE: /run/pki/client-ca.crt
+      OPA_URL: http://opa:8181/v1/data/agent/allow
+    expose: ["8000"]
+    volumes:
+      - ../../pki/ca/root-ca.crt:/run/pki/client-ca.crt:ro
+    networks: [private]
+    read_only: true
+    tmpfs: ["/tmp:size=32m,noexec,nosuid"]
+    security_opt: ["no-new-privileges:true"]
+    cap_drop: [ALL]
+
+  opa:
+    image: openpolicyagent/opa:1.4.2
+    command: ["run", "--server", "--addr=0.0.0.0:8181", "/policies/agent.rego"]
+    expose: ["8181"]
+    volumes:
+      - ../../policies/agent.rego:/policies/agent.rego:ro
+    networks: [private]
+    read_only: true
+    security_opt: ["no-new-privileges:true"]
+    cap_drop: [ALL]
+
+  gateway:
+    image: nginx:1.27-alpine
+    restart: unless-stopped
+    depends_on: [mcp]
+    ports: ["8443:8443"]
+    volumes:
+      - ../../deployment/docker/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - ../../pki/certs/server.crt:/etc/nginx/pki/server.crt:ro
+      - ../../pki/private/server.key:/etc/nginx/pki/server.key:ro
+      - ../../pki/ca/root-ca.crt:/etc/nginx/pki/client-ca.crt:ro
+    networks: [edge, private]
+    security_opt: ["no-new-privileges:true"]
+    cap_drop: [ALL]
+    cap_add: [NET_BIND_SERVICE]
+
+networks:
+  edge: {}
+  private:
+    internal: true

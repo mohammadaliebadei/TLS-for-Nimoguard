@@ -1,0 +1,4 @@
+mcp>=1.26,<2
+uvicorn[standard]>=0.34
+cryptography>=44
+httpx>=0.28
