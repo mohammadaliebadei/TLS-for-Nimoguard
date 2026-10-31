@@ -30,7 +30,7 @@ cp .env.example .env
 docker compose -f deployment/docker/docker-compose.yml up --build -d
 ```
 
-The demo endpoint is `https://localhost:8443/mcp`. The demo CA key is intentionally
+The demo endpoint is `https://localhost:xxxx/mcp`. The demo CA key is intentionally
 created locally and MUST NOT be used in production.
 
 Test TLS:
@@ -70,6 +70,5 @@ or client decide authorization.
 ## Notes
 
 This is a reference scaffold. Pin dependency versions after validating them in your
-environment and CI. MCP SDK APIs evolve; verify the pinned SDK transport API before
-upgrading. The included tests cover certificate parsing/identity and OPA policy behavior;
+environment and CI. MCP SDK APIs evolve; The included tests cover certificate parsing/identity and OPA policy behavior;
 run the end-to-end TLS tests after starting the stack.
