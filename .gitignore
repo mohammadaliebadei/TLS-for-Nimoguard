@@ -1,0 +1,23 @@
+# PKI secrets — NEVER commit these
+pki/private/
+pki/ca/root-ca.key
+pki/ca/root-ca.srl
+pki/certs/
+pki/csr/
+pki/*.key
+pki/*.pem
+pki/*.crt
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Docker
+pip.conf
+.env
+
+# OS
+.DS_Store
+pki/ca/root-ca.crt
